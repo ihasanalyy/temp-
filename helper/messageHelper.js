@@ -1,0 +1,150 @@
+import { sendMessage } from "../services/whatsappService.js";
+import User from "../models/user.js";
+import Vendor from "../models/Vendor.js";
+
+const sendTextMessage = async (to, body, lastMessage) => {
+    const data = {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to,
+        type: "text",
+        text: { body }
+    };
+    // console.log("⚡ sendMessage function called with data:", data);
+    const response = await sendMessage(data);
+
+
+
+    // ✅ Last message update sirf tab kare jab body ho
+    if (lastMessage) {
+        await updateLastMessage(to, lastMessage);
+    }
+
+    return response;
+};
+
+const sendButtonMessage = async (phone, text, buttons, lastMessage) => {
+
+    const data = {
+        messaging_product: "whatsapp",
+        to: phone,
+        type: "interactive",
+        interactive: {
+            type: "button",
+            body: { text },
+            action: {
+                buttons: buttons.map(btn => ({
+                    type: "reply",
+                    reply: {
+                        id: btn.id,
+                        title: btn.title
+                    }
+                }))
+            }
+        }
+    };
+    // console.log( "dataaaaaaa",data) 
+
+    const response = await sendMessage(data);
+
+    // ✅ Last message update sirf tab kare jab text available ho
+    if (lastMessage) {
+        await updateLastMessage(phone, lastMessage)
+    }
+
+    return response;
+};
+
+// ✅ Function jo last message update karega sirf jab lastMessage ho
+const updateLastMessage = async (phoneNumber, lastMessage) => {
+    try {
+        if (!lastMessage) return; // Agar lastMessage nahi hai toh return kar do
+
+        await User.findOneAndUpdate(
+            { phoneNumber }, // Find user by phone number
+            { lastMessage }, // Update lastMessage field
+            { upsert: true, new: true } // Agar user nahi mila to create kar do
+        );
+    } catch (error) {
+        console.error("Error updating last message:", error.message);
+    }
+};
+//  const updateLastMessage = async (phoneNumber, lastMessage) => {
+//     try {
+//         if (!lastMessage) return; // Agar lastMessage nahi hai toh return kar do
+
+//         // Pehle check karo ke yeh phoneNumber User mai hai ya Vendor mai
+//         const user = await User.findOne({ phoneNumber });
+//         const vendor = await Vendor.findOne({ phoneNumber }); 
+
+//         if (user) {
+//             await User.findOneAndUpdate(
+//                 { phoneNumber },
+//                 { lastMessage },
+//                 { upsert: true, new: true }
+//             );
+//         } else if (vendor) {
+//             await Vendor.findOneAndUpdate(
+//                 { phoneNumber },
+//                 { lastMessage },
+//                 { upsert: true, new: true }
+//             );
+//         } else {
+//             console.log("User ya Vendor nahi mila:", phoneNumber);
+//         }
+//     } catch (error) {
+//         console.error("Error updating last message:", error.message);
+//     }
+// };
+
+
+// ✅ **Send List Message**
+const sendListMessage = async (to, body, buttonText, sections, lastMessage) => {
+    const data = {
+        messaging_product: "whatsapp",
+        to,
+        type: "interactive",
+        interactive: {
+            type: "list",
+            body: { text: body },
+            action: {
+                button: buttonText,
+                sections: sections
+            }
+        }
+    };
+
+    const response = await sendMessage(data);
+
+    if (lastMessage) {
+        await updateLastMessage(to, lastMessage);
+    }
+
+    return response;
+};
+
+// ✅ Send Image Message Function
+const sendPhotoMessage = async (phone, imageUrl, caption, lastMessage) => {
+    const data = {
+        messaging_product: "whatsapp",
+        to: phone,
+        type: "image",
+        image: {
+            link: imageUrl
+        }
+    };
+
+    if (caption) {
+        data.image.caption = caption || "";
+    }
+
+    const response = await sendMessage(data);
+
+    if (lastMessage) {
+        await updateLastMessage(phone, lastMessage);
+    }
+
+    return response;
+};
+
+export { sendTextMessage, sendButtonMessage, sendListMessage, sendPhotoMessage }
