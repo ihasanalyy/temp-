@@ -9,7 +9,7 @@ export const search = async (req, res) => {
     const { query, latitude, longitude, radius, searchCategory } = req.body;
     console.log("Received Search Request:", { query, latitude, longitude, radius, searchCategory });
 
-    const userId = req.user.id;
+    const userId = req?.user?.id;
     if (!query) return res.status(400).json({ message: "Search query is required" });
 
     try {
