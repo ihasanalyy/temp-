@@ -8,8 +8,9 @@ import { sendButtonMessage } from "../helper/messageHelperForVendor.js";
 export const search = async (req, res) => {
     const { query, latitude, longitude, radius, searchCategory } = req.body;
     console.log("Received Search Request:", { query, latitude, longitude, radius, searchCategory });
-    console.log("User ID:", req?.body);
+    // console.log("User ID:", req?.body);
     const userId = req?.user?.id;
+    console.log(userId, "user id")
     if (!query) return res.status(400).json({ message: "Search query is required" });
 
     try {

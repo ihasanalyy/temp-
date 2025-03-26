@@ -24,15 +24,39 @@ export const updateVendor = async (req, res) => {
     }
 }
 // vendor history
+// export const getHistoryVendor = async (req, res) => {
+//     try {
+//         const vendor = await Vendor.findById(req.user.id, "responseHistory");
+//         if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+//         res.json({ responseHistory: vendor.responseHistory });
+//     } catch (error) {
+//         res.status(500).json({ message: "Error retrieving vendor response history" });
+//     }
+// }
 export const getHistoryVendor = async (req, res) => {
+    const { page = 1 } = req.query; // Get the page number from query params (default is 1)
+    const limit = 10; // Limit the number of history entries per page
+  
     try {
-        const vendor = await Vendor.findById(req.user.id, "responseHistory");
-        if (!vendor) return res.status(404).json({ message: "Vendor not found" });
-        res.json({ responseHistory: vendor.responseHistory });
+      const vendor = await Vendor.findById(req.user.id, "responseHistory");
+      if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+  
+      // Paginate the response history
+      const totalEntries = vendor.responseHistory.length;
+      const startIndex = (page - 1) * limit;
+      const paginatedHistory = vendor.responseHistory.slice(startIndex, startIndex + limit);
+  
+      res.json({
+        responseHistory: paginatedHistory,
+        totalEntries,
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalEntries / limit),
+      });
     } catch (error) {
-        res.status(500).json({ message: "Error retrieving vendor response history" });
+      res.status(500).json({ message: "Error retrieving vendor response history" });
     }
-}
+};
+  
 // vendor login
 export const vendorLogin = async (req, res) => {
     const { email, password } = req.body;
