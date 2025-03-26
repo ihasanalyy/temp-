@@ -5,7 +5,7 @@ import { openShop, search, openShopDetails, openPriceDetails } from '../controll
 const router = express.Router();
 
 // search route
-router.get('/query', search);
+router.post('/query', search);
 
 // open specific/relevent vendor shop
 router.get('/shop/:queryId', authMiddleware, openShop);
