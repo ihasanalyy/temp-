@@ -18,29 +18,29 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// app.use(cors(
-//     {
-//         origin: "http://localhost:5173","https://look-up-ten.vercel.app/",
-//         credentials: true
-//     }
-// ));
-const allowedOrigins = [
-    "http://localhost:5173",
-    "https://look-up-ten.vercel.app/"
-];
-
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
+app.use(cors(
+    {
+        origin: "https://look-up-ten.vercel.app/"
         credentials: true
-    })
-);
+    }
+));
+// const allowedOrigins = [
+//     "http://localhost:5173",
+//     "https://look-up-ten.vercel.app/"
+// ];
+
+// app.use(
+//     cors({
+//         origin: (origin, callback) => {
+//             if (!origin || allowedOrigins.includes(origin)) {
+//                 callback(null, true);
+//             } else {
+//                 callback(new Error("Not allowed by CORS"));
+//             }
+//         },
+//         credentials: true
+//     })
+// );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
